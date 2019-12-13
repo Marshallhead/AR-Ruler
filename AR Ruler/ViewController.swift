@@ -15,6 +15,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet var sceneView: ARSCNView!
     
     var dotNodes = [SCNNode]()//used to keep track of all the dot notes on the scene
+    var textNode = SCNNode()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +46,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.session.pause()
     }
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {// detect users touch on the screen
+        
+        if dotNodes.count >= 2{
+            for dot in dotNodes {
+                dot.removeFromParentNode()// removes all dots once theres a third for new calculation
+            }
+            dotNodes = [SCNNode]()// setting new array of nodes
+        }
         if let touchLocation = touches.first?.location(in: sceneView){
             let hitTestResults = sceneView.hitTest(touchLocation, types: .featurePoint)// convert 2D to 3D by performing hittest, hittest looks for featurepoint matching and 3d continuous surface
             
@@ -86,11 +94,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     func updateText(text: String, atPosition position: SCNVector3/*text position)*/){
         
+        textNode.removeFromParentNode()//clears text and sets new one for new dimensions
+        
         let textGeometry = SCNText(string: text, extrusionDepth: 1.0)
         
         textGeometry.firstMaterial?.diffuse.contents = UIColor.red
         
-        let textNode = SCNNode(geometry: textGeometry)
+        textNode = SCNNode(geometry: textGeometry)
         
         textNode.position = SCNVector3(position.x, position.y + 0.01, position.z)
         
